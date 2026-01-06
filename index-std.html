@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Performance Assessment tool using polar area charts for employee evaluation">
+    <meta name="author" content="Peter Caron Consulting OÜ">
+    <meta name="keywords" content="performance assessment, employee evaluation, polar chart">
+    <title>Performance Assessment - Peter Caron Consulting</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <a href="#inputForm" class="skip-link">Skip to assessment form</a>
+
+    <header>
+        <img height="150" src="logo.png" width="150" alt="Peter Caron Consulting OÜ Logo">
+        <h1>Performance Assessment</h1>
+    </header>
+
+    <main>
+        <section aria-labelledby="intro-heading">
+            <h2 id="intro-heading" class="sr-only">Introduction</h2>
+            <p>
+                The main goal of a performance assessment is to evaluate an employee's job performance in accordance
+                with predefined standards and criteria.
+                Organisations may pinpoint their strengths and weaknesses, celebrate accomplishments and address areas
+                for development which may be enhanced through performance improvement planning.
+            </p>
+            <p>This assessment is not meant to be a comprehensive evaluation of an employee's performance but a tool to
+                help you identify areas for improvement.</p>
+            <p>The assessment is divided into 4 themes and 19 categories. Each category has the following ratings:</p>
+            <ul>
+                <li>0 - Not Applicable</li>
+                <li>1 - Very Poor</li>
+                <li>2 - Poor</li>
+                <li>3 - Fair</li>
+                <li>4 - Good</li>
+                <li>5 - Excellent</li>
+            </ul>
+        </section>
+
+        <section aria-labelledby="employee-info">
+            <h2 id="employee-info">Employee Information</h2>
+            <p><strong>Date:</strong> <span id="currentDate"></span></p>
+            <form id="employeeNameForm">
+                <label for="employeeName">Name:</label>
+                <input type="text" id="employeeName" name="employeeName" placeholder="Enter employee name" required>
+            </form>
+        </section>
+
+        <section aria-labelledby="assessment-form">
+            <h2 id="assessment-form">Assessment Criteria</h2>
+            <form id="inputForm" aria-label="Performance assessment criteria">
+                <fieldset>
+                    <legend>Strategic Vision and Business Alignment</legend>
+                    <div class="field">
+                        <input type="number" id="sharedVision" name="sharedVision" min="0" max="5" value="0"
+                            aria-describedby="sharedVision-desc">
+                        <label for="sharedVision">
+                            <strong>Shared Vision:</strong>
+                            Consistently demonstrates alignment between personal objectives and company vision through
+                            actions and decisions.
+                        </label>
+                        <span id="sharedVision-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="strategy" name="strategy" min="0" max="5" value="0"
+                            aria-describedby="strategy-desc">
+                        <label for="strategy">
+                            <strong>Strategy:</strong>
+                            Effectively develops strategic plans and translates them into actionable tactical steps.
+                        </label>
+                        <span id="strategy-desc" class="sr-only">Rate from 0 (Not Applicable) to 5 (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="businessAlignment" name="businessAlignment" min="0" max="5" value="0"
+                            aria-describedby="businessAlignment-desc">
+                        <label for="businessAlignment">
+                            <strong>Business Alignment:</strong>
+                            Demonstrates clear connection between daily activities and broader company objectives.
+                        </label>
+                        <span id="businessAlignment-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="customerFocus" name="customerFocus" min="0" max="5" value="0"
+                            aria-describedby="customerFocus-desc">
+                        <label for="customerFocus">
+                            <strong>Customer Focus:</strong>
+                            Consistently prioritises customer needs and satisfaction in decision-making and actions.
+                        </label>
+                        <span id="customerFocus-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Focus and Engagement</legend>
+                    <div class="field">
+                        <input type="number" id="crossFunctionalTeams" name="crossFunctionalTeams" min="0" max="5"
+                            value="0" aria-describedby="crossFunctionalTeams-desc">
+                        <label for="crossFunctionalTeams">
+                            <strong>Enables cross-functional work:</strong>
+                            Successfully builds relationships and collaborates across teams and departments to achieve
+                            shared objectives.
+                        </label>
+                        <span id="crossFunctionalTeams-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="clarityInPriorities" name="clarityInPriorities" min="0" max="5"
+                            value="0" aria-describedby="clarityInPriorities-desc">
+                        <label for="clarityInPriorities">
+                            <strong>Clarity of Priorities:</strong>
+                            Systematically evaluates and ranks tasks based on importance, ensuring efficient execution.
+                        </label>
+                        <span id="clarityInPriorities-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="acceptanceCriteria" name="acceptanceCriteria" min="0" max="5" value="0"
+                            aria-describedby="acceptanceCriteria-desc">
+                        <label for="acceptanceCriteria">
+                            <strong>Acceptance Criteria:</strong>
+                            Clearly defines and communicates quality standards for deliverables.
+                        </label>
+                        <span id="acceptanceCriteria-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="enablingFocus" name="enablingFocus" min="0" max="5" value="0"
+                            aria-describedby="enablingFocus-desc">
+                        <label for="enablingFocus">
+                            <strong>Focus:</strong>
+                            Creates clear roadmaps with specific milestones and maintains team focus on key objectives.
+                        </label>
+                        <span id="enablingFocus-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="engagement" name="engagement" min="0" max="5" value="0"
+                            aria-describedby="engagement-desc">
+                        <label for="engagement">
+                            <strong>Engagement:</strong>
+                            Shows consistent enthusiasm and dedication in approaching work responsibilities.
+                        </label>
+                        <span id="engagement-desc" class="sr-only">Rate from 0 (Not Applicable) to 5 (Excellent)</span>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Autonomy and Change</legend>
+                    <div class="field">
+                        <input type="number" id="feedback" name="feedback" min="0" max="5" value="0"
+                            aria-describedby="feedback-desc">
+                        <label for="feedback">
+                            <strong>Feedback:</strong>
+                            Delivers constructive feedback effectively while remaining open and responsive to receiving
+                            input from others.
+                        </label>
+                        <span id="feedback-desc" class="sr-only">Rate from 0 (Not Applicable) to 5 (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="enablingAutonomy" name="enablingAutonomy" min="0" max="5" value="0"
+                            aria-describedby="enablingAutonomy-desc">
+                        <label for="enablingAutonomy">
+                            <strong>Enables Autonomy:</strong>
+                            Empowers team members to make decisions and innovate within appropriate boundaries.
+                        </label>
+                        <span id="enablingAutonomy-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="changeAndAmbiguity" name="changeAndAmbiguity" min="0" max="5" value="0"
+                            aria-describedby="changeAndAmbiguity-desc">
+                        <label for="changeAndAmbiguity">
+                            <strong>Change and Ambiguity:</strong>
+                            Maintains effectiveness and adapts quickly when facing uncertain or changing circumstances.
+                        </label>
+                        <span id="changeAndAmbiguity-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="desiredCulture" name="desiredCulture" min="0" max="5" value="0"
+                            aria-describedby="desiredCulture-desc">
+                        <label for="desiredCulture">
+                            <strong>Desired Culture:</strong>
+                            Demonstrates and promotes behaviours that align with and strengthen company values.
+                        </label>
+                        <span id="desiredCulture-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="workAutonomously" name="workAutonomously" min="0" max="5" value="0"
+                            aria-describedby="workAutonomously-desc">
+                        <label for="workAutonomously">
+                            <strong>Works Autonomously:</strong>
+                            Effectively self-manages time and priorities to deliver optimal results independently.
+                        </label>
+                        <span id="workAutonomously-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Stakeholders and Team</legend>
+                    <div class="field">
+                        <input type="number" id="stakeholders" name="stakeholders" min="0" max="5" value="0"
+                            aria-describedby="stakeholders-desc">
+                        <label for="stakeholders">
+                            <strong>Stakeholders:</strong>
+                            Identifies key stakeholders and demonstrates a deep understanding of their explicit and
+                            implicit needs.
+                        </label>
+                        <span id="stakeholders-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="teamAttrition" name="teamAttrition" min="0" max="5" value="0"
+                            aria-describedby="teamAttrition-desc">
+                        <label for="teamAttrition">
+                            <strong>Team Attrition:</strong>
+                            Maintains strong working relationships that inspire loyalty and respect from team members.
+                        </label>
+                        <span id="teamAttrition-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="teams" name="teams" min="0" max="5" value="0"
+                            aria-describedby="teams-desc">
+                        <label for="teams">
+                            <strong>Team Focus:</strong>
+                            Consistently prioritises team success over individual recognition or achievement.
+                        </label>
+                        <span id="teams-desc" class="sr-only">Rate from 0 (Not Applicable) to 5 (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="developingPeople" name="developingPeople" min="0" max="5" value="0"
+                            aria-describedby="developingPeople-desc">
+                        <label for="developingPeople">
+                            <strong>Develops People:</strong>
+                            Actively identifies and creates opportunities for team members' professional growth and
+                            skill development.
+                        </label>
+                        <span id="developingPeople-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                    <div class="field">
+                        <input type="number" id="subordinatesForSuccess" name="subordinatesForSuccess" min="0" max="5"
+                            value="0" aria-describedby="subordinatesForSuccess-desc">
+                        <label for="subordinatesForSuccess">
+                            <strong>Prepare subordinates for success:</strong>
+                            Actively mentors and provides resources to direct reports to help them achieve their goals.
+                        </label>
+                        <span id="subordinatesForSuccess-desc" class="sr-only">Rate from 0 (Not Applicable) to 5
+                            (Excellent)</span>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+
+        <section aria-labelledby="chart-section">
+            <h2 id="chart-section" class="sr-only">Results Visualization</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart" role="img" aria-label="Performance assessment polar area chart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="btn-group">
+            <button type="button" onclick="saveOnly()" aria-label="Save assessment results to CSV file">
+                Save to CSV
+            </button>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
