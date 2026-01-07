@@ -1,4 +1,4 @@
-# Create polar area charts 
+# Create polar area charts for HR Performance reviews
 A webpage to collect some values and output a polar chart using chart.js
 
 ## Requirements
