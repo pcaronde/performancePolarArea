@@ -348,6 +348,32 @@
             document.body.removeChild(link);
         }
 
+        function clearAll() {
+            // Clear all number inputs
+            const numberInputs = document.querySelectorAll('#inputForm input[type="number"]');
+            numberInputs.forEach(input => {
+                input.value = 0;
+            });
+
+            // Clear employee name
+            const nameInput = document.getElementById('employeeName');
+            if (nameInput) {
+                nameInput.value = '';
+                currentEmployeeName = '';
+            }
+
+            // Update chart title
+            if (performanceChart) {
+                performanceChart.options.plugins.title.text = 'Results';
+            }
+
+            // Update chart with zeros
+            updateChart();
+
+            // Show success message
+            showSuccessMessage('All values have been cleared');
+        }
+
         function loadFromCSV() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -502,6 +528,7 @@
         <!--<button type="button" onclick="updateChartAndSave()">Update Chart</button>-->
         <button type="button" onclick="saveOnly()">Save to File</button>
         <button type="button" onclick="loadFromCSV()">Import from File</button>
+        <button type="button" onclick="clearAll()">Clear All</button>
     </div>
 </body>
 </html>

@@ -365,6 +365,38 @@ class PerformanceAssessment {
     }
 
     /**
+     * Clear all form values and reset chart
+     */
+    clearAll() {
+        // Clear all number inputs
+        const numberInputs = document.querySelectorAll('#inputForm input[type="number"]');
+        numberInputs.forEach(input => {
+            input.value = 0;
+        });
+
+        // Clear employee name
+        const nameInput = document.getElementById('employeeName');
+        if (nameInput) {
+            nameInput.value = '';
+            this.employeeName = '';
+        }
+
+        // Update chart title
+        if (this.chart) {
+            this.chart.options.plugins.title.text = 'Results';
+        }
+
+        // Update chart with zeros
+        this.updateChart();
+
+        // Clear localStorage
+        localStorage.removeItem('performanceAssessment');
+
+        // Show success message
+        this.showSuccessMessage('All values have been cleared');
+    }
+
+    /**
      * Load assessment data from CSV file
      */
     loadFromCSV() {
@@ -574,5 +606,11 @@ window.saveOnly = function () {
 window.loadFromCSV = function () {
     if (assessmentApp) {
         assessmentApp.loadFromCSV();
+    }
+};
+
+window.clearAll = function () {
+    if (assessmentApp) {
+        assessmentApp.clearAll();
     }
 };
