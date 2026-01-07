@@ -348,6 +348,149 @@
             document.body.removeChild(link);
         }
 
+        function loadFromCSV() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+            input.style.display = 'none';
+
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            parseAndLoadCSV(event.target.result);
+                        } catch (error) {
+                            console.error('Failed to load CSV:', error);
+                            showErrorMessage('Failed to load CSV file. Please check the file format.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+                // Clean up
+                document.body.removeChild(input);
+            };
+
+            // Append to DOM before clicking
+            document.body.appendChild(input);
+            input.click();
+        }
+
+        function parseAndLoadCSV(csvContent) {
+            const lines = csvContent.trim().split('\n');
+
+            // Validate header
+            if (lines.length < 2) {
+                throw new Error('CSV file is empty or invalid');
+            }
+
+            const header = lines[0].toLowerCase();
+            if (!header.includes('categories') || !header.includes('ratings')) {
+                throw new Error('Invalid CSV format. Expected "Categories,Ratings" header');
+            }
+
+            const themes = {
+                'Strategic Vision': {
+                    metrics: ['sharedVision', 'strategy', 'businessAlignment', 'customerFocus']
+                },
+                'Focus and Engagement': {
+                    metrics: ['crossFunctionalTeams', 'clarityInPriorities', 'acceptanceCriteria', 'enablingFocus', 'engagement']
+                },
+                'Autonomy and Change': {
+                    metrics: ['feedback', 'enablingAutonomy', 'changeAndAmbiguity', 'desiredCulture', 'workAutonomously']
+                },
+                'Stakeholders and Team': {
+                    metrics: ['stakeholders', 'teamAttrition', 'teams', 'developingPeople', 'subordinatesForSuccess']
+                }
+            };
+
+            let loadedCount = 0;
+            const validMetricIds = new Set();
+
+            // Build set of valid metric IDs
+            Object.values(themes).forEach(theme => {
+                theme.metrics.forEach(metricId => {
+                    validMetricIds.add(metricId);
+                });
+            });
+
+            // Parse data rows
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const [category, rating] = line.split(',').map(s => s.trim());
+
+                // Validate metric ID exists
+                if (!validMetricIds.has(category)) {
+                    console.warn(`Unknown category in CSV: ${category}`);
+                    continue;
+                }
+
+                // Validate rating value (0-5)
+                const value = parseFloat(rating);
+                const validValue = isNaN(value) ? 0 : Math.max(0, Math.min(5, value));
+
+                // Update form field
+                const input = document.getElementById(category);
+                if (input) {
+                    input.value = validValue;
+                    loadedCount++;
+                }
+            }
+
+            if (loadedCount === 0) {
+                throw new Error('No valid data found in CSV file');
+            }
+
+            // Update chart
+            updateChart();
+
+            // Show success message
+            showSuccessMessage(`Successfully loaded ${loadedCount} ratings from CSV`);
+        }
+
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            errorDiv.setAttribute('role', 'alert');
+            errorDiv.style.cssText = `
+                padding: 10px;
+                margin: 10px 0;
+                background-color: #f44336;
+                color: white;
+                border-radius: 4px;
+            `;
+
+            const container = document.querySelector('.chart-container');
+            if (container) {
+                container.prepend(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            successDiv.setAttribute('role', 'status');
+            successDiv.style.cssText = `
+                padding: 10px;
+                margin: 10px 0;
+                background-color: #4CAF50;
+                color: white;
+                border-radius: 4px;
+            `;
+
+            const container = document.querySelector('.chart-container');
+            if (container) {
+                container.prepend(successDiv);
+                setTimeout(() => successDiv.remove(), 3000);
+            }
+        }
+
         // Add event listeners to all inputs to update chart on change
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('change', () => {
