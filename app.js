@@ -365,6 +365,96 @@ class PerformanceAssessment {
     }
 
     /**
+     * Load assessment data from CSV file
+     */
+    loadFromCSV() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv';
+
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    this.parseAndLoadCSV(event.target.result);
+                } catch (error) {
+                    console.error('Failed to load CSV:', error);
+                    this.showErrorMessage('Failed to load CSV file. Please check the file format.');
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        input.click();
+    }
+
+    /**
+     * Parse CSV content and load into form
+     * @param {string} csvContent - Raw CSV file content
+     */
+    parseAndLoadCSV(csvContent) {
+        const lines = csvContent.trim().split('\n');
+
+        // Validate header
+        if (lines.length < 2) {
+            throw new Error('CSV file is empty or invalid');
+        }
+
+        const header = lines[0].toLowerCase();
+        if (!header.includes('categories') || !header.includes('ratings')) {
+            throw new Error('Invalid CSV format. Expected "Categories,Ratings" header');
+        }
+
+        let loadedCount = 0;
+        const validMetricIds = new Set();
+
+        // Build set of valid metric IDs from configuration
+        Object.values(this.themes).forEach(themeData => {
+            themeData.metrics.forEach(metric => {
+                validMetricIds.add(metric.id);
+            });
+        });
+
+        // Parse data rows
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const [category, rating] = line.split(',').map(s => s.trim());
+
+            // Validate metric ID exists in our configuration
+            if (!validMetricIds.has(category)) {
+                console.warn(`Unknown category in CSV: ${category}`);
+                continue;
+            }
+
+            // Validate rating value
+            const value = this.validateInput(rating);
+
+            // Update form field
+            const input = document.getElementById(category);
+            if (input) {
+                input.value = value;
+                loadedCount++;
+            }
+        }
+
+        if (loadedCount === 0) {
+            throw new Error('No valid data found in CSV file');
+        }
+
+        // Update chart and save to localStorage
+        this.updateChart();
+        this.saveToLocalStorage();
+
+        // Show success message
+        this.showSuccessMessage(`Successfully loaded ${loadedCount} ratings from CSV`);
+    }
+
+    /**
      * Show error message to user
      * @param {string} message - Error message to display
      */
@@ -385,6 +475,30 @@ class PerformanceAssessment {
         if (container) {
             container.prepend(errorDiv);
             setTimeout(() => errorDiv.remove(), 5000);
+        }
+    }
+
+    /**
+     * Show success message to user
+     * @param {string} message - Success message to display
+     */
+    showSuccessMessage(message) {
+        const successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        successDiv.textContent = message;
+        successDiv.setAttribute('role', 'status');
+        successDiv.style.cssText = `
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+        `;
+
+        const container = document.querySelector('.chart-container');
+        if (container) {
+            container.prepend(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
         }
     }
 
@@ -449,5 +563,11 @@ document.addEventListener('DOMContentLoaded', () => {
 window.saveOnly = function () {
     if (assessmentApp) {
         assessmentApp.saveToCSV();
+    }
+};
+
+window.loadFromCSV = function () {
+    if (assessmentApp) {
+        assessmentApp.loadFromCSV();
     }
 };
