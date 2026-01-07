@@ -371,23 +371,28 @@ class PerformanceAssessment {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.csv';
+        input.style.display = 'none';
 
         input.onchange = (e) => {
             const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    this.parseAndLoadCSV(event.target.result);
-                } catch (error) {
-                    console.error('Failed to load CSV:', error);
-                    this.showErrorMessage('Failed to load CSV file. Please check the file format.');
-                }
-            };
-            reader.readAsText(file);
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        this.parseAndLoadCSV(event.target.result);
+                    } catch (error) {
+                        console.error('Failed to load CSV:', error);
+                        this.showErrorMessage('Failed to load CSV file. Please check the file format.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+            // Clean up
+            document.body.removeChild(input);
         };
 
+        // Append to DOM before clicking
+        document.body.appendChild(input);
         input.click();
     }
 
