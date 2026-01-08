@@ -6,9 +6,18 @@
     <title>Performance Assessment</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <!-- API Client and Auth Manager -->
+    <script src="frontend/api/apiClient.js"></script>
+    <script src="frontend/api/authManager.js"></script>
 </head>
 <body>
-    <img height="107" src="3T_logo-250x107.png" width="250" alt="§T SoftwareLabs GmbH">
+    <!-- User Info Display -->
+    <div style="text-align: right; padding: 10px; background: #f0f0f0; margin-bottom: 10px;">
+        <span id="userDisplay" style="margin-right: 15px; font-weight: 600;"></span>
+        <button onclick="handleLogout()" style="padding: 5px 15px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px;">Logout</button>
+    </div>
+
+    <img height="53" src="3T_logo-250x107.png" width="125" alt="§T SoftwareLabs GmbH">
     <h1>Mini-Performance Assessment</h1>
     The main goal of a performance assessment is to evaluate an employee's job performance in accordance with predefined standards and criteria.
     Organisations may pinpoint their strengths and weaknesses, celebrate accomplishments and address areas for development which may be enhanced through performance improvement planning.
@@ -119,16 +128,38 @@
         </div>
     </form>
 
-    <!--<div class="btn-group">-->
-        <!--<button type="button" onclick="updateChartAndSave()">Update Chart</button>-->
-        <!--button type="button" onclick="saveOnly()">Save to CSV</button-->
-    <!--</div>-->
-
     <div class="chart-container">
         <canvas id="performanceChart"></canvas>
     </div>
 
+    <div class="btn-group" style="margin-top: 20px; text-align: center;">
+        <button type="button" onclick="window.location.href='/history.html'" aria-label="View assessment history">
+            View History
+        </button>
+        <button type="button" onclick="clearAll()" aria-label="Clear all values and reset the form">
+            Clear All
+        </button>
+    </div>
+
     <script>
+        // Authentication Guard - Check if user is logged in
+        if (!authManager.isAuthenticated()) {
+            window.location.href = '/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+        }
+
+        // Display logged-in user
+        const user = authManager.getUser();
+        if (user) {
+            document.getElementById('userDisplay').textContent = `Logged in as: ${user.firstName} ${user.lastName}`;
+        }
+
+        // Logout function
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout();
+            }
+        }
+
         // Set current date
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
 

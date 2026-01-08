@@ -67,6 +67,7 @@ class PerformanceAssessment {
         this.chart = null;
         this.employeeName = '';
         this.themes = ASSESSMENT_CONFIG.themes;
+        this.currentAssessmentId = null; // Track current assessment for updates
     }
 
     /**
@@ -76,7 +77,24 @@ class PerformanceAssessment {
         this.setCurrentDate();
         this.initializeChart();
         this.attachEventListeners();
-        this.loadFromLocalStorage();
+
+        // Check for assessment ID in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const assessmentId = urlParams.get('assessmentId');
+        const mode = urlParams.get('mode'); // 'view' or 'edit'
+
+        if (assessmentId) {
+            // Load assessment from MongoDB
+            this.loadAssessment(assessmentId);
+
+            // If view mode, make form read-only
+            if (mode === 'view') {
+                this.setReadOnlyMode(true);
+            }
+        } else {
+            // Load from localStorage as fallback
+            this.loadFromLocalStorage();
+        }
     }
 
     /**
@@ -304,12 +322,12 @@ class PerformanceAssessment {
 
             const data = JSON.parse(saved);
 
-            // Check if data is from today
-            const savedDate = new Date(data.date);
-            const today = new Date();
-            if (savedDate.toDateString() !== today.toDateString()) {
-                return; // Don't load old data
-            }
+            // Remove date check - allow loading any saved data
+            // const savedDate = new Date(data.date);
+            // const today = new Date();
+            // if (savedDate.toDateString() !== today.toDateString()) {
+            //     return; // Don't load old data
+            // }
 
             // Restore employee name
             const nameInput = document.getElementById('employeeName');
@@ -327,6 +345,154 @@ class PerformanceAssessment {
             this.updateChart();
         } catch (error) {
             console.error('Failed to load saved data:', error);
+        }
+    }
+
+    /**
+     * Collect all form data as metrics object
+     * @returns {Object} - All 19 metrics with values
+     */
+    collectFormData() {
+        const metrics = {};
+
+        Object.values(this.themes).forEach(themeData => {
+            themeData.metrics.forEach(metric => {
+                const input = document.getElementById(metric.id);
+                if (input) {
+                    metrics[metric.id] = parseInt(input.value) || 0;
+                }
+            });
+        });
+
+        return metrics;
+    }
+
+    /**
+     * Save assessment to MongoDB
+     * Falls back to localStorage if API call fails
+     */
+    async saveToMongoDB() {
+        try {
+            // Check if user is authenticated
+            if (!window.authManager || !window.authManager.isAuthenticated()) {
+                console.warn('User not authenticated, saving to localStorage only');
+                this.saveToLocalStorage();
+                return;
+            }
+
+            // Prepare assessment data
+            const data = {
+                employeeName: this.employeeName || 'Unknown',
+                assessmentDate: new Date().toISOString(),
+                metrics: this.collectFormData()
+            };
+
+            // Check if updating existing or creating new
+            if (this.currentAssessmentId) {
+                // Update existing assessment
+                const response = await api.updateAssessment(this.currentAssessmentId, data);
+                console.log('Assessment updated:', response);
+                this.showSuccessMessage('Assessment updated successfully');
+            } else {
+                // Create new assessment
+                const response = await api.createAssessment(data);
+                this.currentAssessmentId = response.assessment._id;
+                console.log('Assessment created:', response);
+                this.showSuccessMessage('Assessment saved to database');
+            }
+
+            // Also save to localStorage as backup
+            this.saveToLocalStorage();
+
+        } catch (error) {
+            console.error('Failed to save to MongoDB:', error);
+            this.showErrorMessage('Could not save to database: ' + error.message);
+
+            // Fall back to localStorage
+            this.saveToLocalStorage();
+            this.showSuccessMessage('Saved locally (offline mode)');
+        }
+    }
+
+    /**
+     * Load assessment from MongoDB by ID
+     * @param {string} assessmentId - Assessment ID to load
+     */
+    async loadAssessment(assessmentId) {
+        try {
+            // Check if user is authenticated
+            if (!window.authManager || !window.authManager.isAuthenticated()) {
+                this.showErrorMessage('Please login to load assessments');
+                return;
+            }
+
+            const assessment = await api.getAssessment(assessmentId);
+
+            // Populate employee name
+            const nameInput = document.getElementById('employeeName');
+            if (nameInput) {
+                nameInput.value = assessment.employeeName;
+                this.employeeName = assessment.employeeName;
+            }
+
+            // Update chart title
+            if (this.chart) {
+                this.chart.options.plugins.title.text = assessment.employeeName
+                    ? `${assessment.employeeName} - Results`
+                    : 'Results';
+            }
+
+            // Populate all metric inputs
+            Object.entries(assessment.metrics).forEach(([metricId, value]) => {
+                const input = document.getElementById(metricId);
+                if (input) {
+                    input.value = value;
+                }
+            });
+
+            // Store assessment ID for updates
+            this.currentAssessmentId = assessmentId;
+
+            // Update chart
+            this.updateChart();
+
+            this.showSuccessMessage('Assessment loaded successfully');
+
+        } catch (error) {
+            console.error('Failed to load assessment:', error);
+            this.showErrorMessage('Could not load assessment: ' + error.message);
+        }
+    }
+
+    /**
+     * Create new assessment (clear current and start fresh)
+     */
+    newAssessment() {
+        this.currentAssessmentId = null;
+        this.clearAll();
+        this.showSuccessMessage('Ready for new assessment');
+    }
+
+    /**
+     * Set form to read-only mode
+     * @param {boolean} readOnly - True to make read-only, false to enable editing
+     */
+    setReadOnlyMode(readOnly) {
+        const inputs = document.querySelectorAll('#inputForm input[type="number"], #employeeName');
+        inputs.forEach(input => {
+            input.readOnly = readOnly;
+            if (readOnly) {
+                input.style.backgroundColor = '#f5f5f5';
+                input.style.cursor = 'not-allowed';
+            } else {
+                input.style.backgroundColor = '';
+                input.style.cursor = '';
+            }
+        });
+
+        // Show message if in read-only mode
+        if (readOnly) {
+            this.showSuccessMessage('Viewing assessment in read-only mode');
         }
     }
 
@@ -559,11 +725,11 @@ class PerformanceAssessment {
             });
         }
 
-        // Number inputs - update chart on change
+        // Number inputs - update chart and auto-save to MongoDB
         const debouncedUpdate = this.debounce(() => {
             this.updateChart();
-            this.saveToLocalStorage();
-        }, 300);
+            this.saveToMongoDB(); // Auto-save to MongoDB (falls back to localStorage if offline)
+        }, 5000); // 5 seconds after last change
 
         document.querySelectorAll('input[type="number"]').forEach(input => {
             input.addEventListener('input', debouncedUpdate.bind(this));
@@ -572,17 +738,17 @@ class PerformanceAssessment {
         // Auto-save on employee name change
         if (nameInput) {
             const debouncedSave = this.debounce(() => {
-                this.saveToLocalStorage();
-            }, 1000);
+                this.saveToMongoDB(); // Auto-save to MongoDB
+            }, 5000); // 5 seconds after last change
             nameInput.addEventListener('input', debouncedSave.bind(this));
         }
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ctrl/Cmd + S to save
+            // Ctrl/Cmd + S to save to MongoDB
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
-                this.saveToCSV();
+                this.saveToMongoDB();
             }
         });
     }
@@ -612,5 +778,17 @@ window.loadFromCSV = function () {
 window.clearAll = function () {
     if (assessmentApp) {
         assessmentApp.clearAll();
+    }
+};
+
+window.loadAssessment = function (assessmentId) {
+    if (assessmentApp) {
+        assessmentApp.loadAssessment(assessmentId);
+    }
+};
+
+window.newAssessment = function () {
+    if (assessmentApp) {
+        assessmentApp.newAssessment();
     }
 };
