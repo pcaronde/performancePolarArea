@@ -1,6 +1,8 @@
-# Performance Assessment Application
+# Create polar area charts for HR Performance reviews
+A webpage to collect some values and output a polar chart using chart.js
 
-A full-stack web application for conducting and managing employee performance assessments using interactive polar area charts. Features secure authentication, MongoDB persistence, and comprehensive assessment history management.
+## Requirements
+Web Server
 
 ## 📋 Features
 
