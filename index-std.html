@@ -10,10 +10,19 @@
     <title>Performance Assessment - Peter Caron Consulting</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <!-- API Client and Auth Manager -->
+    <script src="frontend/api/apiClient.js"></script>
+    <script src="frontend/api/authManager.js"></script>
 </head>
 
 <body>
     <a href="#inputForm" class="skip-link">Skip to assessment form</a>
+
+    <!-- User Info Display -->
+    <div style="text-align: right; padding: 10px; background: #f0f0f0;">
+        <span id="userDisplay" style="margin-right: 15px; font-weight: 600;"></span>
+        <button onclick="handleLogout()" style="padding: 5px 15px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px;">Logout</button>
+    </div>
 
     <header>
         <img height="150" src="logo.png" width="150" alt="Peter Caron Consulting OÜ Logo">
@@ -284,6 +293,26 @@
             </button>
         </div>
     </footer>
+
+    <script>
+        // Authentication Guard - Check if user is logged in
+        if (!authManager.isAuthenticated()) {
+            window.location.href = '/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+        }
+
+        // Display logged-in user
+        const user = authManager.getUser();
+        if (user) {
+            document.getElementById('userDisplay').textContent = `Logged in as: ${user.firstName} ${user.lastName}`;
+        }
+
+        // Logout function
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout();
+            }
+        }
+    </script>
 
     <script src="app.js"></script>
 </body>

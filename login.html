@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Login to Performance Assessment Application">
+    <title>Login - Performance Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-header img {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        .auth-header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-primary {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            padding: 12px;
+            background-color: white;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f8f0;
+        }
+
+        .error-message {
+            padding: 12px;
+            background-color: #f44336;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .success-message {
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .form-toggle {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-toggle a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .form-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <img src="logo.png" alt="Performance Assessment Logo">
+            <h1>Performance Assessment</h1>
+            <p>Please sign in to continue</p>
+        </div>
+
+        <!-- Error/Success Messages -->
+        <div id="messageContainer"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    name="email"
+                    placeholder="your.email@example.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input
+                    type="password"
+                    id="loginPassword"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                    minlength="6"
+                >
+            </div>
+
+            <button type="submit" class="btn-primary" id="loginBtn">
+                Sign In
+            </button>
+
+            <div class="form-toggle">
+                Don't have an account? <a id="showRegister">Create one</a>
+            </div>
+        </form>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="auth-form hidden">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input
+                        type="text"
+                        id="firstName"
+                        name="firstName"
+                        placeholder="John"
+                        required
+                        autocomplete="given-name"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input
+                        type="text"
+                        id="lastName"
+                        name="lastName"
+                        placeholder="Doe"
+                        required
+                        autocomplete="family-name"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input
+                    type="email"
+                    id="registerEmail"
+                    name="email"
+                    placeholder="your.email@example.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input
+                    type="password"
+                    id="registerPassword"
+                    name="password"
+                    placeholder="At least 6 characters"
+                    required
+                    autocomplete="new-password"
+                    minlength="6"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Re-enter your password"
+                    required
+                    autocomplete="new-password"
+                    minlength="6"
+                >
+            </div>
+
+            <button type="submit" class="btn-primary" id="registerBtn">
+                Create Account
+            </button>
+
+            <div class="form-toggle">
+                Already have an account? <a id="showLogin">Sign in</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Load API client and auth manager -->
+    <script src="frontend/api/apiClient.js"></script>
+    <script src="frontend/api/authManager.js"></script>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showLoginLink = document.getElementById('showLogin');
+        const messageContainer = document.getElementById('messageContainer');
+
+        // Check if already logged in
+        if (authManager.isAuthenticated()) {
+            // Redirect to main app
+            const params = new URLSearchParams(window.location.search);
+            const returnUrl = params.get('returnUrl') || '/index.html';
+            window.location.href = returnUrl;
+        }
+
+        // Toggle between login and registration forms
+        showRegisterLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            messageContainer.innerHTML = '';
+        });
+
+        showLoginLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            messageContainer.innerHTML = '';
+        });
+
+        // Show message (error or success)
+        function showMessage(message, type = 'error') {
+            const messageClass = type === 'error' ? 'error-message' : 'success-message';
+            messageContainer.innerHTML = `<div class="${messageClass}">${message}</div>`;
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+
+            try {
+                await authManager.login(email, password);
+
+                showMessage('Login successful! Redirecting...', 'success');
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    const params = new URLSearchParams(window.location.search);
+                    const returnUrl = params.get('returnUrl') || '/index.html';
+                    window.location.href = returnUrl;
+                }, 1000);
+
+            } catch (error) {
+                showMessage(error.message || 'Login failed. Please check your credentials.');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+
+        // Handle registration form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match');
+                return;
+            }
+
+            // Validate password length
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters');
+                return;
+            }
+
+            const registerBtn = document.getElementById('registerBtn');
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Creating account...';
+
+            try {
+                await authManager.register({
+                    email,
+                    password,
+                    firstName,
+                    lastName
+                });
+
+                showMessage('Account created successfully! Redirecting...', 'success');
+
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 1000);
+
+            } catch (error) {
+                showMessage(error.message || 'Registration failed. Please try again.');
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'Create Account';
+            }
+        });
+    </script>
+</body>
+</html>
