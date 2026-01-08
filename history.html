@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Assessment History - Performance Assessment Application">
+    <title>Assessment History - Performance Assessment</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .history-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .history-header h1 {
+            margin: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filters {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .assessments-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .assessments-table thead {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .assessments-table th,
+        .assessments-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .assessments-table th {
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .assessments-table tbody tr:hover {
+            background: #f9f9f9;
+        }
+
+        .assessments-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #1976D2;
+        }
+
+        .btn-edit {
+            background: #FF9800;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #F57C00;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .message {
+            padding: 12px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .average-score {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .btn-secondary {
+            background: #757575;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+        }
+    </style>
+</head>
+<body>
+    <!-- User Info Display -->
+    <div style="text-align: right; padding: 10px; background: #f0f0f0;">
+        <span id="userDisplay" style="margin-right: 15px; font-weight: 600;"></span>
+        <button onclick="handleLogout()" style="padding: 5px 15px; cursor: pointer; background: #f44336; color: white; border: none; border-radius: 4px;">Logout</button>
+    </div>
+
+    <div class="history-container">
+        <div class="history-header">
+            <div>
+                <img height="100" src="logo.png" width="100" alt="Performance Assessment Logo" style="vertical-align: middle; margin-right: 15px;">
+                <h1 style="display: inline-block; vertical-align: middle;">Assessment History</h1>
+            </div>
+            <div class="btn-group">
+                <a href="/index-std.html" class="btn-secondary">New Assessment</a>
+            </div>
+        </div>
+
+        <!-- Message Container -->
+        <div id="messageContainer"></div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="searchName">Employee Name</label>
+                <input type="text" id="searchName" placeholder="Search by name...">
+            </div>
+            <div class="filter-group">
+                <label for="dateFrom">From Date</label>
+                <input type="date" id="dateFrom">
+            </div>
+            <div class="filter-group">
+                <label for="dateTo">To Date</label>
+                <input type="date" id="dateTo">
+            </div>
+            <div class="filter-group">
+                <button onclick="applyFilters()" style="padding: 8px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Assessments Table -->
+        <div id="tableContainer">
+            <div class="loading">Loading assessments...</div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="paginationContainer"></div>
+    </div>
+
+    <!-- Load API client and auth manager -->
+    <script src="frontend/api/apiClient.js"></script>
+    <script src="frontend/api/authManager.js"></script>
+
+    <script>
+        // Authentication Guard
+        if (!authManager.isAuthenticated()) {
+            window.location.href = '/login.html?returnUrl=' + encodeURIComponent(window.location.pathname);
+        }
+
+        // Display logged-in user
+        const user = authManager.getUser();
+        if (user) {
+            document.getElementById('userDisplay').textContent = `Logged in as: ${user.firstName} ${user.lastName}`;
+        }
+
+        // Logout function
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                authManager.logout();
+            }
+        }
+
+        // State
+        let currentPage = 1;
+        let currentFilters = {
+            employeeName: '',
+            dateFrom: '',
+            dateTo: ''
+        };
+
+        // Show message
+        function showMessage(message, type = 'success') {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="message ${type}">${message}</div>`;
+
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Calculate average score
+        function calculateAverage(metrics) {
+            const values = Object.values(metrics);
+            const sum = values.reduce((a, b) => a + b, 0);
+            return (sum / values.length).toFixed(1);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        // Load assessments
+        async function loadAssessments(page = 1) {
+            try {
+                const filters = {
+                    page: page,
+                    limit: 20,
+                    ...currentFilters
+                };
+
+                const response = await api.getAssessments(filters);
+                renderTable(response.assessments);
+                renderPagination(response.pagination);
+
+            } catch (error) {
+                console.error('Load assessments error:', error);
+                showMessage('Failed to load assessments: ' + error.message, 'error');
+                document.getElementById('tableContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error Loading Assessments</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render table
+        function renderTable(assessments) {
+            const container = document.getElementById('tableContainer');
+
+            if (assessments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Assessments Found</h3>
+                        <p>Start by creating a new assessment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const table = `
+                <table class="assessments-table">
+                    <thead>
+                        <tr>
+                            <th>Employee Name</th>
+                            <th>Assessment Date</th>
+                            <th>Average Score</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${assessments.map(assessment => `
+                            <tr>
+                                <td>${assessment.employeeName || 'Unknown'}</td>
+                                <td>${formatDate(assessment.assessmentDate)}</td>
+                                <td class="average-score">${calculateAverage(assessment.metrics)}/5.0</td>
+                                <td>${formatDate(assessment.createdAt)}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-small btn-view" onclick="viewAssessment('${assessment._id}')">View</button>
+                                        <button class="btn-small btn-edit" onclick="editAssessment('${assessment._id}')">Edit</button>
+                                        <button class="btn-small btn-delete" onclick="deleteAssessment('${assessment._id}', '${assessment.employeeName}')">Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = table;
+        }
+
+        // Render pagination
+        function renderPagination(pagination) {
+            const container = document.getElementById('paginationContainer');
+
+            if (pagination.pages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const html = `
+                <div class="pagination">
+                    <button onclick="changePage(${pagination.page - 1})" ${pagination.page === 1 ? 'disabled' : ''}>
+                        Previous
+                    </button>
+                    <span class="page-info">
+                        Page ${pagination.page} of ${pagination.pages} (${pagination.total} total)
+                    </span>
+                    <button onclick="changePage(${pagination.page + 1})" ${pagination.page === pagination.pages ? 'disabled' : ''}>
+                        Next
+                    </button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            loadAssessments(page);
+        }
+
+        // Apply filters
+        function applyFilters() {
+            currentFilters = {
+                employeeName: document.getElementById('searchName').value.trim(),
+                dateFrom: document.getElementById('dateFrom').value,
+                dateTo: document.getElementById('dateTo').value
+            };
+            currentPage = 1;
+            loadAssessments(1);
+        }
+
+        // View assessment (read-only)
+        function viewAssessment(assessmentId) {
+            window.location.href = `/index-std.html?assessmentId=${assessmentId}&mode=view`;
+        }
+
+        // Edit assessment
+        function editAssessment(assessmentId) {
+            window.location.href = `/index-std.html?assessmentId=${assessmentId}&mode=edit`;
+        }
+
+        // Delete assessment
+        async function deleteAssessment(assessmentId, employeeName) {
+            if (!confirm(`Are you sure you want to delete the assessment for "${employeeName}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                await api.deleteAssessment(assessmentId);
+                showMessage('Assessment deleted successfully', 'success');
+
+                // Reload current page
+                loadAssessments(currentPage);
+
+            } catch (error) {
+                console.error('Delete assessment error:', error);
+                showMessage('Failed to delete assessment: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAssessments(1);
+
+            // Enter key in search triggers filter
+            document.getElementById('searchName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    applyFilters();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

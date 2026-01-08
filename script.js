@@ -21,7 +21,24 @@ class PerformanceAssessment {
         this.setCurrentDate();
         this.initializeChart();
         this.attachEventListeners();
-        this.loadFromLocalStorage();
+
+        // Check for assessment ID in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const assessmentId = urlParams.get('assessmentId');
+        const mode = urlParams.get('mode'); // 'view' or 'edit'
+
+        if (assessmentId) {
+            // Load assessment from MongoDB
+            this.loadAssessment(assessmentId);
+
+            // If view mode, make form read-only
+            if (mode === 'view') {
+                this.setReadOnlyMode(true);
+            }
+        } else {
+            // Load from localStorage as fallback
+            this.loadFromLocalStorage();
+        }
     }
 
     /**
@@ -378,6 +395,29 @@ class PerformanceAssessment {
         this.currentAssessmentId = null;
         this.clearAll();
         this.showSuccessMessage('Ready for new assessment');
+    }
+
+    /**
+     * Set form to read-only mode
+     * @param {boolean} readOnly - True to make read-only, false to enable editing
+     */
+    setReadOnlyMode(readOnly) {
+        const inputs = document.querySelectorAll('#inputForm input[type="number"], #employeeName');
+        inputs.forEach(input => {
+            input.readOnly = readOnly;
+            if (readOnly) {
+                input.style.backgroundColor = '#f5f5f5';
+                input.style.cursor = 'not-allowed';
+            } else {
+                input.style.backgroundColor = '';
+                input.style.cursor = '';
+            }
+        });
+
+        // Show message if in read-only mode
+        if (readOnly) {
+            this.showSuccessMessage('Viewing assessment in read-only mode');
+        }
     }
 
     /**
