@@ -1,8 +1,0 @@
-# These are the plain name requirements.
-pytest
-plotly
-pandas
-logging
-openpyxl
-flask
-flask_cors
