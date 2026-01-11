@@ -27,6 +27,27 @@ A full-stack web application for conducting and managing employee performance as
 4. **Stakeholders and Team** (5 metrics)
    - Stakeholders, Team Attrition, Team Focus, Developing People, Prepare Subordinates for Success
 
+## 🚀 Production Deployment
+
+**Deploying to Ubuntu Server?** See the comprehensive **[DEPLOYMENT.md](DEPLOYMENT.md)** guide for:
+- Complete Ubuntu server setup
+- MongoDB configuration and security
+- **.env file security** (permissions, encryption)
+- PM2 process management
+- Nginx reverse proxy configuration
+- SSL/HTTPS setup with Let's Encrypt
+- Firewall configuration (UFW)
+- Security hardening
+- Automated backups
+- Monitoring and logging
+
+**Quick Deploy:**
+```bash
+sudo ./deploy.sh
+```
+
+Then follow the post-installation steps in [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## 🛠️ Prerequisites
 
 Before you begin, ensure you have the following installed:
