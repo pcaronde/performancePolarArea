@@ -7,6 +7,14 @@ const { generateToken } = require('../config/jwt');
  */
 async function register(req, res) {
   try {
+    // Check if registration is allowed
+    const allowRegistration = process.env.ALLOW_REGISTRATION === 'true';
+    if (!allowRegistration) {
+      return res.status(403).json({
+        message: 'Registration is currently disabled. Please contact an administrator.'
+      });
+    }
+
     const { email, password, firstName, lastName } = req.body;
 
     // Check if user already exists
@@ -127,6 +135,22 @@ async function getCurrentUser(req, res) {
 }
 
 /**
+ * Get registration configuration
+ * GET /api/auth/config
+ */
+async function getAuthConfig(req, res) {
+  try {
+    const allowRegistration = process.env.ALLOW_REGISTRATION === 'true';
+    res.json({
+      allowRegistration
+    });
+  } catch (error) {
+    console.error('Get auth config error:', error);
+    res.status(500).json({ message: 'Failed to get configuration' });
+  }
+}
+
+/**
  * Logout user (client-side token removal)
  * POST /api/auth/logout
  */
@@ -140,5 +164,6 @@ module.exports = {
   register,
   login,
   getCurrentUser,
+  getAuthConfig,
   logout
 };

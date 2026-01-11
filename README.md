@@ -84,6 +84,9 @@ JWT_EXPIRES_IN=24h
 
 # Security
 BCRYPT_ROUNDS=12
+
+# Registration Control
+ALLOW_REGISTRATION=true
 ```
 
 **Important:** Generate a strong JWT secret:
@@ -228,6 +231,64 @@ Open your browser and navigate to:
 - Select a previously exported CSV file
 - Data is loaded and saved to MongoDB
 
+## 🔐 Controlling User Registration
+
+By default, anyone can create a new account. For production environments or when you want to restrict who can access the system, you can disable new user registration.
+
+### Disable Registration
+
+Edit your `.env` file and set:
+
+```env
+ALLOW_REGISTRATION=false
+```
+
+Then restart the backend server:
+
+```bash
+npm start
+```
+
+**What happens when registration is disabled:**
+- The "Create one" link is hidden on the login page
+- The registration form is not accessible
+- API registration endpoint returns 403 Forbidden
+- Login page shows: "Registration is currently disabled. Please contact an administrator."
+- **Existing users can still login** normally
+
+### Creating Users When Registration is Disabled
+
+If you need to create user accounts when registration is disabled, you have two options:
+
+**Option 1: Temporarily Enable Registration**
+1. Set `ALLOW_REGISTRATION=true` in `.env`
+2. Restart backend server
+3. Create the user account(s)
+4. Set `ALLOW_REGISTRATION=false` and restart
+
+**Option 2: Create via MongoDB Shell**
+
+```javascript
+// Connect to MongoDB
+mongosh hr_performance
+
+// Insert user (password will need to be bcrypt hashed manually)
+db.users.insertOne({
+  email: "admin@example.com",
+  password: "$2a$12$hashedPasswordHere",  // Use bcrypt to hash
+  firstName: "Admin",
+  lastName: "User",
+  role: "assessor",
+  createdAt: new Date()
+});
+```
+
+**To generate a bcrypt hash for a password:**
+
+```bash
+node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('yourpassword', 12).then(hash => console.log(hash));"
+```
+
 ## 📁 Project Structure
 
 ```
@@ -272,6 +333,8 @@ performancePolarArea/
 
 ### Authentication
 
+- `GET /api/auth/config` - Get authentication configuration (public)
+  - Returns: `{ allowRegistration: boolean }`
 - `POST /api/auth/register` - Create new user account
 - `POST /api/auth/login` - Login and get JWT token
 - `POST /api/auth/logout` - Logout user

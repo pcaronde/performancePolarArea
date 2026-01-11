@@ -56,6 +56,14 @@ class APIClient {
   // ==================== Authentication Methods ====================
 
   /**
+   * Get authentication configuration
+   * @returns {Promise<Object>} - { allowRegistration }
+   */
+  async getAuthConfig() {
+    return this.request('/auth/config');
+  }
+
+  /**
    * Register a new user
    * @param {Object} userData - { email, password, firstName, lastName }
    * @returns {Promise<Object>} - { token, user }

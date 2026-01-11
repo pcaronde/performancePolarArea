@@ -5,6 +5,7 @@ const {
   register,
   login,
   getCurrentUser,
+  getAuthConfig,
   logout
 } = require('../controllers/authController');
 const {
@@ -21,6 +22,13 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false
 });
+
+/**
+ * GET /api/auth/config
+ * Get authentication configuration (public endpoint)
+ * Returns: { allowRegistration }
+ */
+router.get('/config', getAuthConfig);
 
 /**
  * POST /api/auth/register

@@ -300,6 +300,31 @@
             window.location.href = returnUrl;
         }
 
+        // Check registration configuration
+        async function checkRegistrationConfig() {
+            try {
+                const config = await api.getAuthConfig();
+                if (!config.allowRegistration) {
+                    // Hide registration link and form
+                    showRegisterLink.style.display = 'none';
+                    registerForm.style.display = 'none';
+
+                    // Show message in login form
+                    const loginToggle = loginForm.querySelector('.form-toggle');
+                    if (loginToggle) {
+                        loginToggle.innerHTML = 'Registration is currently disabled. Please contact an administrator.';
+                        loginToggle.style.color = '#666';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to check registration config:', error);
+                // If config check fails, allow registration by default
+            }
+        }
+
+        // Check config on page load
+        checkRegistrationConfig();
+
         // Toggle between login and registration forms
         showRegisterLink.addEventListener('click', (e) => {
             e.preventDefault();
